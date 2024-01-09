@@ -1,8 +1,8 @@
 {
 	"name": "NoFriendlyGunfire",
-	"version_number": "1.0.0",
+	"version_number": "1.0.1",
 	"author": "AgentRev",
-	"description": "Protects you against shotgun friendly fire. Might crash on launch beyond v45, involves dark magic. Client-side, no host requirement. Best used along the NoShovelGriefing mod.",
+	"description": "Protects you against shotgun friendly fire. Client-side, works in public lobbies. Best used along the NoShovelGriefing mod.",
 	"website_url": "https://github.com/AgentRev/LC-NoFriendlyGunfire",
 	"dependencies": [
 		"BepInEx-BepInExPack-5.4.2100"

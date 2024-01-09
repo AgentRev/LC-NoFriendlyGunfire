@@ -16,49 +16,38 @@ public class Plugin : BaseUnityPlugin
     }
 }
 
-public static class ShotgunItemExtensions
+[HarmonyPatch(typeof(ShotgunItem))]
+public static class ShotgunPatch
 {
     public static bool PreCheckFriendly(this ShotgunItem shotgun)
     {
-        shotgun.isReloading = false; // I put this here because I had to overwrite that line from ShootGun with the transpiler to have enough space for the "call" opcode
         return shotgun.playerHeldBy != null;
     }
-}
 
-[HarmonyPatch(typeof(ShotgunItem), nameof(ShotgunItem.ShootGun))]
-public static class ShotgunPatch
-{
     // Changes ShootGun's "bool flag" to the result of PreCheckFriendly, which if true will skip DamagePlayer
+    [HarmonyPatch(nameof(ShotgunItem.ShootGun))]
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        int step = 0;
+        var pending = true;
 
-        foreach (CodeInstruction inst in instructions)
+        foreach (var inst in instructions)
         {
-            if (step == 0)
-            {
-                // Load instance address
-                inst.opcode = OpCodes.Ldarg_0;
-            }
-            else if (step == 1)
-            {
-                // Call PreCheckFriendly
-                inst.opcode = OpCodes.Call;
-                inst.operand = AccessTools.Method(typeof(ShotgunItemExtensions), nameof(ShotgunItemExtensions.PreCheckFriendly));
-            }
-            else if (step == 2)
-            {
-                // Store the return value in the "bool flag" variable
-                inst.opcode = OpCodes.Stloc_0;
-            }
-            else if (step == 3)
-            {
-                // Skip futher instructions until next instance operation - only tested with v45, might crash future versions...
-                if (inst.opcode != OpCodes.Ldarg_0) continue;
-            }
-
             yield return inst;
-            step++;
+
+            // Wait until after the 1st occurrence of Stloc_0 (the "bool flag = false" line) to insert the pre-check
+            if (pending && inst.opcode == OpCodes.Stloc_0)
+            {
+                // Load the object address
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+
+                // Call PreCheckFriendly
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ShotgunPatch), nameof(PreCheckFriendly)));
+
+                // Store the return value in the "bool flag" variable
+                yield return new CodeInstruction(OpCodes.Stloc_0);
+
+                pending = false;
+            }
         }
     }
 }
