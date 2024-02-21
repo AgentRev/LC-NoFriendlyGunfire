@@ -21,7 +21,7 @@ public static class ShotgunPatch
 {
     public static bool PreCheckFriendly(this ShotgunItem shotgun)
     {
-        return shotgun.playerHeldBy != null;
+        return !shotgun.isHeldByEnemy;
     }
 
     // Changes ShootGun's "bool flag" to the result of PreCheckFriendly, which if true will skip DamagePlayer

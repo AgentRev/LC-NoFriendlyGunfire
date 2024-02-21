@@ -1,6 +1,6 @@
 {
 	"name": "NoFriendlyGunfire",
-	"version_number": "1.0.1",
+	"version_number": "1.0.2",
 	"author": "AgentRev",
 	"description": "Protects you against shotgun friendly fire. Client-side, works in public lobbies. Best used along the NoShovelGriefing mod.",
 	"website_url": "https://github.com/AgentRev/LC-NoFriendlyGunfire",
